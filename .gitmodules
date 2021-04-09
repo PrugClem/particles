@@ -1,0 +1,3 @@
+[submodule "GLshader"]
+	path = GLshader
+	url = https://github.com/R-Michi/GLshader.git
