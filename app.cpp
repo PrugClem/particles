@@ -240,7 +240,7 @@ bool particle::application::setup_structures()
 
     this->fountain.generate("assets/textures/minecraft_bricks.png");
 
-    return this->test.read_from_file("assets/models/fountain.txt");
+    return this->test.read_from_file("assets/models/bricks.txt");
 }
 
 void particle::application::run()
