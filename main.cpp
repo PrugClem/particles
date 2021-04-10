@@ -7,7 +7,7 @@ int main()
     particle::application::configuration config;
 
     config.max_particles = 100;
-    config.cam_sensitivity = 0.002;
+    config.cam_sensitivity = 0.0025;
     config.cam_speed = 1;
     config.cam_fov = 100;
 

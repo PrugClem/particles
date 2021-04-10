@@ -7,10 +7,13 @@ project ("particles")
 
 # Add source to this project's executable.
 add_executable (particles 
-    "main.cpp" "app.cpp" "app.hpp" "particles.hpp"
+    "main.cpp" "app.cpp" "app.hpp" "particles.hpp"  # c++ source files for the program        
 )
 
-# copy shaders
+# copy shaders (copy from $src/shaders/* to $bin/shaders/*)
+add_custom_command(TARGET particles POST_BUILD
+COMMAND "robocopy" ARGS "\"${CMAKE_CURRENT_SOURCE_DIR}/assets\"" "\"${CMAKE_BINARY_DIR}/assets\"" "\"*.*\"" "/e" "/mir" "/njh" "/njs" "/ndl"
+)
 
 # OpenGL stuff thanks to windows not convenient
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/glew-2.1.0/include"

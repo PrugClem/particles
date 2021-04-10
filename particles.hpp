@@ -26,10 +26,9 @@ namespace particle
         float x, y, z;	// spacial coordinates
     };
 
-    struct position
+    struct triangle_t
     {
-        float x, y, z;
+        vertex_t first, second, third;
     };
-
 } // namespace particle
 

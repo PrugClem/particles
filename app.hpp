@@ -7,6 +7,8 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "GLshader/Shader.h"
 
+#include "stb/stb_image.h"
+
 #include <atomic>
 #include <cmath>
 
@@ -34,10 +36,15 @@ namespace particle
         };
         struct static_obj // "struct" to store a static obj, i.e the fountain
         {
-            std::vector<vertex_t> vertices;
-            std::uint32_t vbo;
-            std::uint32_t vao;
-            void generate_from_vertices(); // generate vertex buffer object and vertex attribute object from vertices
+        private:
+            GLuint vbo{0}; // vertex buffer object
+            GLuint vao{0}; // vertex array object
+            GLuint tex{0}; // texture
+            GLsizei count{0}; // number of vertices (3 * number of triangles)
+        public:
+            std::vector<triangle_t> triangles; // strore the vertices for generating
+            void generate(); // generate vertex buffer object and vertex attribute object from vertices
+            void draw(); // draw vertex buffer object
             ~static_obj()
             {
                 glDeleteBuffers(1, &this->vbo);
@@ -59,6 +66,7 @@ namespace particle
         // private functions to make the code more readable
         void render_frame();
         void update_particles();
+        void setup_structures();
     public:
         application() = default;
         ~application();

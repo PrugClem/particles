@@ -82,11 +82,6 @@ void particle::application::render_frame()
 {
     int width, height;
 
-    // get the new frame time and calculate time difference
-    this->t_cur_frame = std::chrono::system_clock::now();
-    this->dt_frame = t_cur_frame - t_last_frame;
-    t_last_frame = t_cur_frame;
-
     // set camera
     glfwGetWindowSize(this->window, &width, &height);
     mouse_action(this->window, width, height, cam.yaw, cam.pitch, config->cam_sensitivity);
@@ -113,33 +108,28 @@ void particle::application::render_frame()
 
     this->shader.use();
     this->shader.uniform_matrix_4x4f("mvp", 1, false, glm::value_ptr(projection * view) );
-    glBindVertexArray(this->fountain.vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    //glBindVertexArray(this->fountain.vao);
+    //glDrawArrays(GL_TRIANGLES, 0, 3);
+    this->fountain.draw();
     return;
 }
 
-void particle::application::run()
+void particle::application::static_obj::draw()
 {
-    std::clog << "[application / run] application started" << std::endl;
-    while (!glfwWindowShouldClose(this->window))
+    if(this->count > 0) // ognore if no verticeshave to be drawn
     {
-        this->render_frame();
-        glfwSwapBuffers(this->window);
-        glfwPollEvents();
-        this->frame_count++;
-
-        std::clog << "[application / run] camera x:" << this->cam.x << ",y:"<< this->cam.y << ",z:" << this->cam.z << " yaw:" << this->cam.yaw << ",pitch:" << this->cam.pitch << std::flush;
-        std::clog << "[application / run] current frame time: " << std::chrono::duration_cast<std::chrono::microseconds>(this->dt_frame).count() << "us                              \r" << std::flush;
+        glBindVertexArray(this->vbo);
+        glDrawArrays(GL_TRIANGLES, 0, this->count);
     }
 }
 
-void particle::application::static_obj::generate_from_vertices()
+void particle::application::static_obj::generate()
 {
     glGenVertexArrays(1, &this->vao);
     glBindVertexArray(this->vao);
     glGenBuffers(1, &this->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(this->vertices.size()*sizeof( vertex_t )), this->vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(this->triangles.size()*sizeof( triangle_t )), this->triangles.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(vertex_t), 0);
     glEnableVertexAttribArray(1);
@@ -148,6 +138,52 @@ void particle::application::static_obj::generate_from_vertices()
     glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(vertex_t), (const void*)(6*sizeof(float)));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    this->count = 3 * this->triangles.size();
+    std::clog << "[static_obj / generate] vao: " << vao << ", vbo: " << vbo << std::endl;
+}
+
+void particle::application::setup_structures()
+{
+    // testing code
+    this->fountain.triangles.resize(3);
+    this->fountain.triangles.at(0).first =  {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, -1.0, -1.0, +1.0};
+    this->fountain.triangles.at(0).second = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, -1.0, +1.0, +1.0};
+    this->fountain.triangles.at(0).third =  {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, +1.0, -1.0, +1.0};
+
+    this->fountain.triangles.at(1).first =  {0.0, 0.0, {1.0, 0.0, 0.0, 1.0}, -1.0, -1.0, -1.0};
+    this->fountain.triangles.at(1).second = {0.0, 0.0, {0.0, 1.0, 0.0, 1.0}, -1.0, +1.0, -1.0};
+    this->fountain.triangles.at(1).third =  {0.0, 0.0, {0.0, 0.0, 1.0, 1.0}, +1.0, -1.0, -1.0};
+
+    this->fountain.triangles.at(2).first =  {0.0, 0.0, {0.0, 1.0, 1.0, 1.0}, -1.0, +1.0, +1.0};
+    this->fountain.triangles.at(2).second = {0.0, 1.0, {0.0, 1.0, 1.0, 1.0}, +1.0, -1.0, +1.0};
+    this->fountain.triangles.at(2).third =  {1.0, 0.0, {0.0, 1.0, 1.0, 1.0}, +1.0, +1.0, +1.0};
+    this->fountain.generate();
+}
+
+void particle::application::run()
+{
+    using namespace std::chrono_literals; // 1s, 1us
+    std::clog << "[application / run] application started" << std::endl;
+    this->t_last_frame = this->t_start = std::chrono::system_clock::now();
+    while (!glfwWindowShouldClose(this->window))
+    {
+        // get the new frame time and calculate time difference
+        this->t_cur_frame = std::chrono::system_clock::now();
+        this->dt_frame = t_cur_frame - t_last_frame;
+        t_last_frame = t_cur_frame;
+
+        this->render_frame();
+        glfwSwapBuffers(this->window);
+        glfwPollEvents();
+        this->frame_count++;
+
+        //std::clog << "[application / run] camera x:" << this->cam.x << ",y:"<< this->cam.y << ",z:" << this->cam.z << " yaw:" << this->cam.yaw << ",pitch:" << this->cam.pitch << std::flush;
+        std::clog << "[application / run] current frame time: " << (this->dt_frame / 1us) << "us  \r" << std::flush;
+    }
+    std::chrono::system_clock::duration dt_total = (std::chrono::system_clock::now() - this->t_start);
+    std::clog << "[application / run] total number of frames: " << this->frame_count << std::endl
+              << "[application / run] total time elapsed: "<< (dt_total / 1s) << "s" << std::endl
+              << "[application / run] avg. FPS: " << (this->frame_count / (dt_total / 1s)) << std::endl;
 }
 
 bool particle::application::init(configuration& config)
@@ -198,7 +234,7 @@ bool particle::application::init(configuration& config)
     glewInit();
 
     // load shaders
-    gl::ShaderLoadError error = this->shader.load("../shaders/main.vert", "../shaders/main.frag");
+    gl::ShaderLoadError error = this->shader.load("assets/shaders/main.vert", "assets/shaders/main.frag");
     if(error & gl::ShaderLoadErrorType::SHADER_ALREADY_LOADED)
         std::cerr << "[application / init] Shader Programs already loaded!" << std::endl;
     if(error & gl::ShaderLoadErrorType::INVALID_FILE_PATH)
@@ -218,17 +254,7 @@ bool particle::application::init(configuration& config)
     // reset camera
     this->cam = {0.0, 0.0, 0.0, 0.0, 0.0};
 
-    // testing code
-    //vertex_t vertexes[3];
-    //vertexes[0] = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, -1.0, -1.0, +1.0};
-    //vertexes[1] = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, -1.0, +1.0, +1.0};
-    //vertexes[2] = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, +1.0, -1.0, +1.0};
-    this->fountain.vertices.resize(3);
-    this->fountain.vertices.at(0) = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, -1.0, -1.0, +1.0};
-    this->fountain.vertices.at(1) = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, -1.0, +1.0, +1.0};
-    this->fountain.vertices.at(2) = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, +1.0, -1.0, +1.0};
-    this->fountain.generate_from_vertices();
-
+    this->setup_structures();
     
     std::cerr << "OpenGL error: " << glGetError() << std::endl;
 

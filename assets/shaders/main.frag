@@ -11,5 +11,6 @@ out vec4 result_color;
 
 void main()
 {
-    result_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    //result_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    result_color = fs_in.frag_color;
 }
