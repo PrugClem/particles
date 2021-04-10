@@ -9,8 +9,13 @@ in vertex_shader_output
 
 out vec4 result_color;
 
+uniform sampler2D tex;
+
 void main()
 {
-    //result_color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    result_color = fs_in.frag_color;
+    if( isnan(fs_in.frag_tex.x) || isnan(fs_in.frag_tex.y) )
+        result_color = fs_in.frag_color;
+    else
+        result_color = texture(tex, fs_in.frag_tex) * fs_in.frag_color;
+    //result_color = fs_in.frag_color;
 }

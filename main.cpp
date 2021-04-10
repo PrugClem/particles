@@ -1,4 +1,5 @@
 #include "particles.hpp"
+#define STB_IMAGE_IMPLEMENTATION // define here to only implement stm once
 #include "app.hpp"
 
 int main()
@@ -8,7 +9,7 @@ int main()
 
     config.max_particles = 100;
     config.cam_sensitivity = 0.0025;
-    config.cam_speed = 1;
+    config.cam_speed = 2;
     config.cam_fov = 100;
 
 

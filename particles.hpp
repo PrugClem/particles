@@ -17,18 +17,13 @@ namespace particle
 {
     struct color_t
     {
-        float r, b, g, a;
+        float r, g, b, a;
     };
     struct vertex_t
     {
         float s, t;		// texture coordinates
         color_t color;	// color information
         float x, y, z;	// spacial coordinates
-    };
-
-    struct triangle_t
-    {
-        vertex_t first, second, third;
     };
 } // namespace particle
 

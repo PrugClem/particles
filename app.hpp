@@ -9,6 +9,7 @@
 
 #include "stb/stb_image.h"
 
+#include <fstream>
 #include <atomic>
 #include <cmath>
 
@@ -36,19 +37,25 @@ namespace particle
         };
         struct static_obj // "struct" to store a static obj, i.e the fountain
         {
+            using index_t = GLuint;
         private:
-            GLuint vbo{0}; // vertex buffer object
+            GLuint vbo{0}; // vertex buffer object, stores the vertices
             GLuint vao{0}; // vertex array object
-            GLuint tex{0}; // texture
-            GLsizei count{0}; // number of vertices (3 * number of triangles)
+            GLuint ebo{0}; // element buffer object, stores the vertex indices
+            GLuint tex{0}; // object texture, stores the texture to map onto the triangles
+            std::size_t num_idx{0};
         public:
-            std::vector<triangle_t> triangles; // strore the vertices for generating
-            void generate(); // generate vertex buffer object and vertex attribute object from vertices
+            std::vector<vertex_t> vertices; // strore the vertices for generating
+            std::vector<index_t> indices; // store the indices for the triangles
+            bool read_from_file(const std::string &filename);
+            bool generate(const char *texture_file); // generate vertex buffer object and vertex attribute object from vertices
             void draw(); // draw vertex buffer object
             ~static_obj()
             {
                 glDeleteBuffers(1, &this->vbo);
+                glDeleteBuffers(1, &this->ebo);
                 glDeleteVertexArrays(1, &this->vao);
+                if(this->tex != 0) glDeleteTextures(1, &this->tex); // dont delete default texture
             }
         };
     private:
@@ -56,7 +63,7 @@ namespace particle
         configuration *config;
         camera cam;
         gl::Shader shader;
-        static_obj fountain;
+        static_obj fountain, test;
 
         std::chrono::system_clock::time_point t_start, t_cur_frame, t_last_frame;
         std::chrono::system_clock::duration dt_frame;
@@ -66,7 +73,7 @@ namespace particle
         // private functions to make the code more readable
         void render_frame();
         void update_particles();
-        void setup_structures();
+        bool setup_structures();
     public:
         application() = default;
         ~application();
