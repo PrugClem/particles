@@ -111,32 +111,30 @@ void particle::application::render_frame()
     //glBindVertexArray(this->fountain.vao);
     //glDrawArrays(GL_TRIANGLES, 0, 3);
     this->fountain.draw();
-    this->test.draw();
+    this->plane.draw();
+    this->bricks.draw();
     return;
 }
 
 bool particle::application::setup_structures()
 {
     // testing code
-    this->fountain.vertices.resize(10);
-    this->fountain.vertices.at(0) = {NAN, NAN, {1.0, 1.0, 1.0, 1.0}, -1.0, -1.0, +1.0};
-    this->fountain.vertices.at(1) = {NAN, NAN, {1.0, 1.0, 1.0, 1.0}, -1.0, +1.0, +1.0};
-    this->fountain.vertices.at(2) = {NAN, NAN, {1.0, 1.0, 1.0, 1.0}, +1.0, -1.0, +1.0};
-
-    this->fountain.vertices.at(3) = {10.0, 10.0, {1.0, 0.0, 0.0, 1.0}, -1.0, -1.0, -1.0};
-    this->fountain.vertices.at(4) = {10.0, 00.0, {0.0, 1.0, 0.0, 1.0}, -1.0, +1.0, -1.0};
-    this->fountain.vertices.at(5) = {00.0, 10.0, {0.0, 0.0, 1.0, 1.0}, +1.0, -1.0, -1.0};
-    this->fountain.vertices.at(9) = {00.0, 00.0, {1.0, 1.0, 1.0, 1.0}, +1.0, +1.0, -1.0};
-
-    this->fountain.vertices.at(6) = {1.0, 0.0, {1.0, 1.0, 1.0, 1.0}, -1.0, +1.0, +1.0};
-    this->fountain.vertices.at(7) = {0.0, 1.0, {1.0, 1.0, 1.0, 1.0}, +1.0, -1.0, +1.0};
-    this->fountain.vertices.at(8) = {0.0, 0.0, {1.0, 1.0, 1.0, 1.0}, +1.0, +1.0, +1.0};
-
-    this->fountain.indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 4, 5, 9};
-
-    this->fountain.generate("assets/textures/minecraft_bricks.png");
-
-    return this->test.read_from_file("assets/models/bricks.txt");
+    if(!this->bricks.read_from_file("assets/models/bricks.txt"))
+    {
+        std::cerr << "[application / setup_structures] Unable to generate debug brick block" << std::endl;
+        return false;
+    }
+    if(!this->plane.read_from_file("assets/models/floor.txt"))
+    {
+        std::cerr << "[application / setup_structures] Unable to generate floor" << std::endl;
+        return false;
+    }
+    if(!this->setup_fountain())
+    {
+        std::cerr << "[application / setup_structures] Unable to generate fountain" << std::endl;
+        return false;
+    }
+    return true;
 }
 
 void particle::application::run()

@@ -24,6 +24,10 @@
 #define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406286
 #endif
 
+constexpr const size_t fountain_sweep_steps = 64; // how many linear parts should the rounding have
+constexpr const double fountain_height = 1; // height of the fountaion
+constexpr const double fountain_width = 0.5; // width of the top of the fountain
+
 namespace particle
 {
     class application
@@ -70,7 +74,7 @@ namespace particle
         configuration *config;
         camera cam;
         gl::Shader shader;
-        static_obj fountain, test;
+        static_obj fountain, plane, bricks;
 
         std::chrono::system_clock::time_point t_start, t_cur_frame, t_last_frame;
         std::chrono::system_clock::duration dt_frame;
@@ -81,6 +85,7 @@ namespace particle
         void render_frame();
         void update_particles();
         bool setup_structures();
+        bool setup_fountain();
     public:
         application() = default;
         ~application();

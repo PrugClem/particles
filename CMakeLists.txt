@@ -7,7 +7,7 @@ project ("particles")
 
 # Add source to this project's executable.
 add_executable (particles 
-    "main.cpp" "app.cpp" "app.hpp" "particles.hpp" "static_obj.cpp" # c++ source files for the program
+    "main.cpp" "app.cpp" "app.hpp" "particles.hpp" "static_obj.cpp" "fountain.cpp" # c++ source files for the program
     "GLshader/src/shader_load_src.cpp" "GLshader/src/shader_other_src.cpp" "GLshader/src/shader_uniform_src.cpp" # R-Michi's Shader loader library
 )
 

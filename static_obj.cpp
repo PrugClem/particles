@@ -86,6 +86,16 @@ bool particle::application::static_obj::generate(const char *texture_file)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
     }
+    else
+    {
+        // disable texuring when no texture is given
+        for(vertex_t &vtx : this->vertices)
+        {
+            vtx.s = vtx.t = NAN;
+        }
+    }
+
+    // calculate
     glGenVertexArrays(1, &this->vao);
     glGenBuffers(1, &this->vbo);
     glGenBuffers(1, &this->ebo);
