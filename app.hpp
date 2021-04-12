@@ -7,10 +7,17 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "GLshader/Shader.h"
 
+#ifdef _WIN32
+#include "lib/stb/stb_image.h"
+#else
 #include "stb/stb_image.h"
+#endif
 
+#include <algorithm>
+#include <sstream>
 #include <fstream>
 #include <atomic>
+#include <string>
 #include <cmath>
 
 #ifndef M_PI

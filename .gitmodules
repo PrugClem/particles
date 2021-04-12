@@ -1,6 +1,6 @@
 [submodule "GLshader"]
 	path = GLshader
 	url = https://github.com/R-Michi/GLshader.git
-[submodule "stb"]
-	path = stb
+[submodule "lib/stb"]
+	path = lib/stb
 	url = https://github.com/nothings/stb.git

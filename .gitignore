@@ -34,7 +34,9 @@
 # visual studio (code) and CMAKE output files
 .vs
 .vscode
-lib
+lib/glew*
+lib/glfw*
+lib/glm*
 build
 out
 _particles_jed.cpp
