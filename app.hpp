@@ -2,31 +2,9 @@
 
 #include "particles.hpp"
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "GLshader/Shader.h"
-
-#ifdef _WIN32
-#include "lib/stb/stb_image.h"
-#else
-#include "stb/stb_image.h"
-#endif
-
-#include <algorithm>
-#include <sstream>
-#include <fstream>
-#include <atomic>
-#include <string>
-#include <cmath>
-
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502884197169399375105820974944592307816406286
 #endif
-
-constexpr const size_t fountain_sweep_steps = 64; // how many linear parts should the rounding have
-constexpr const double fountain_height = 1; // height of the fountaion
-constexpr const double fountain_width = 0.5; // width of the top of the fountain
 
 namespace particle
 {
@@ -36,6 +14,10 @@ namespace particle
         struct configuration // configuration structure, will be call-by-reference
         {
             std::uint32_t max_particles;
+
+            size_t fountain_sweep_steps;
+            double fountain_height;
+            double fountain_width;
 
             float cam_sensitivity;
             float cam_speed;
@@ -73,7 +55,7 @@ namespace particle
         GLFWwindow* window;
         configuration *config;
         camera cam;
-        gl::Shader shader;
+        gl::Shader object_shader;
         static_obj fountain, plane, bricks;
 
         std::chrono::system_clock::time_point t_start, t_cur_frame, t_last_frame;
@@ -85,7 +67,7 @@ namespace particle
         void render_frame();
         void update_particles();
         bool setup_structures();
-        bool setup_fountain();
+        bool setup_fountain(const char* texture_filename);
     public:
         application() = default;
         ~application();

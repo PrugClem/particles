@@ -47,9 +47,9 @@ bool particle::application::static_obj::read_from_file(const std::string &model_
         std::getline(model_file, line_buffer); // get vertex information
         ss.clear();
         ss.str(line_buffer);
-        ss  >> vertex_buffer.s >> vertex_buffer.t 
+        ss  >> vertex_buffer.tex_coord.s >> vertex_buffer.tex_coord.t
             >> vertex_buffer.color.r >> vertex_buffer.color.g >> vertex_buffer.color.b >> vertex_buffer.color.a 
-            >> vertex_buffer.x >> vertex_buffer.y >> vertex_buffer.z;
+            >> vertex_buffer.pos.x >> vertex_buffer.pos.y >> vertex_buffer.pos.z;
         this->vertices.push_back(vertex_buffer);
     }
 
@@ -91,7 +91,7 @@ bool particle::application::static_obj::generate(const char *texture_file)
         // disable texuring when no texture is given
         for(vertex_t &vtx : this->vertices)
         {
-            vtx.s = vtx.t = NAN;
+            vtx.tex_coord = {NAN, NAN};
         }
     }
 

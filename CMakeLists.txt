@@ -3,6 +3,10 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
 project ("particles")
 
 # Add source to this project's executable.
@@ -23,7 +27,8 @@ if(WIN32)
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/glm")
 else()
     add_custom_command(TARGET particles POST_BUILD
-    COMMAND "cp" ARGS "\"${CMAKE_CURRENT_SOURCE_DIR}/assets\"" "\"${CMAKE_BINARY_DIR}/assets\"" "-r"
+    COMMAND "cp" ARGS "\"${CMAKE_CURRENT_SOURCE_DIR}/assets\"" "\"${CMAKE_BINARY_DIR}/assets\"" "-rf"
+    #COMMAND "echo" ARGS "[echo] cp " "\"${CMAKE_CURRENT_SOURCE_DIR}/assets\"" "\"${CMAKE_BINARY_DIR}/assets\"" "-r"
     )
 endif()
 

@@ -106,8 +106,8 @@ void particle::application::render_frame()
     // enable depth test
     glEnable(GL_DEPTH_TEST);
 
-    this->shader.use();
-    this->shader.uniform_matrix_4x4f("mvp", 1, false, glm::value_ptr(projection * view) );
+    this->object_shader.use();
+    this->object_shader.uniform_matrix_4x4f("mvp", 1, false, glm::value_ptr(projection * view) );
     //glBindVertexArray(this->fountain.vao);
     //glDrawArrays(GL_TRIANGLES, 0, 3);
     this->fountain.draw();
@@ -129,7 +129,7 @@ bool particle::application::setup_structures()
         std::cerr << "[application / setup_structures] Unable to generate floor" << std::endl;
         return false;
     }
-    if(!this->setup_fountain())
+    if(!this->setup_fountain("assets/textures/metal2.jpg"))
     {
         std::cerr << "[application / setup_structures] Unable to generate fountain" << std::endl;
         return false;
@@ -212,17 +212,17 @@ bool particle::application::init(configuration& config)
     glewInit();
 
     // load shaders
-    gl::ShaderLoadError error = this->shader.load("assets/shaders/main.vert", "assets/shaders/main.frag");
+    gl::ShaderLoadError error = this->object_shader.load("assets/shaders/object.vert", "assets/shaders/object.frag");
     if(error & gl::ShaderLoadErrorType::SHADER_ALREADY_LOADED)
         std::cerr << "[application / init] Shader Programs already loaded!" << std::endl;
     if(error & gl::ShaderLoadErrorType::INVALID_FILE_PATH)
         std::cerr << "[application / init] Shader Programs not found!" << std::endl;
     if(error & gl::ShaderLoadErrorType::VERTEX_SHADER_ERROR)
-        std::cerr << "[application / init] Vertex Shader: " << shader.get_last_vertex_msg() << std::endl;
+        std::cerr << "[application / init] Vertex Shader: " << object_shader.get_last_vertex_msg() << std::endl;
     if(error & gl::ShaderLoadErrorType::FRAGMENT_SHADER_ERROR)
-        std::cerr << "[application / init] Fragment Shader: " << shader.get_last_fragment_msg() << std::endl;
+        std::cerr << "[application / init] Fragment Shader: " << object_shader.get_last_fragment_msg() << std::endl;
     if(error & gl::ShaderLoadErrorType::SHADER_LINK_ERROR)
-        std::cerr << "[application / init] Linker: " << shader.get_last_link_msg() << std::endl;
+        std::cerr << "[application / init] Linker: " << object_shader.get_last_link_msg() << std::endl;
     if(error != gl::ShaderLoadErrorType::NONE)
     {
         std::cerr << "[application / init] Error compiling Shaders (code " << std::hex << error << ")" << std::endl;
