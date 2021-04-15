@@ -14,10 +14,10 @@ bool particle::application::static_obj::read_from_file(const std::string &model_
     std::string line_buffer;
     std::ifstream model_file;
     std::istringstream ss;
-    std::size_t sz;
+    //std::size_t sz;
     vertex_t vertex_buffer;
     index_t idx;
-    float f;
+    //float f;
     bool generated;
 
     model_file.open(model_filename);
@@ -108,9 +108,11 @@ bool particle::application::static_obj::generate(const char *texture_file)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(vertex_t), 0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(vertex_t), (const void*)(2*sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(vertex_t), (const void*)(sizeof(glm::vec2)));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(vertex_t), (const void*)(6*sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(vertex_t), (const void*)(sizeof(glm::vec2) + sizeof(glm::vec4)));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(vertex_t), (const void*)(sizeof(glm::vec2) + sizeof(glm::vec4) * sizeof(glm::vec3)));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     this->num_idx = this->indices.size();

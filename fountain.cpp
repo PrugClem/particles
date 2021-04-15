@@ -1,9 +1,14 @@
 #include "app.hpp"
 
-bool particle::application::setup_fountain(const char *texture_filename)
+void particle::application::fountain_generate_normals_last_ring()
+{
+    //for(size_t ring = )
+}
+
+bool particle::application::fountain_setup(const char *texture_filename)
 {
     glm::vec4 fountain_color = {1.0, 1.0, 1.0, 1.0}; // color for the fountain
-    glm::vec4 fountain_outlet_color = {0.33, 0.33, 0.33, 0.0}; // color for the fountain outlet
+    glm::vec4 fountain_outlet_color = {0.33, 0.33, 0.33, 1.0}; // color for the fountain outlet
     size_t first_index = -1, prev_first_index = -1;
     this->fountain.vertices.clear();
     this->fountain.indices.clear();

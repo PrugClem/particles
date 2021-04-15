@@ -13,6 +13,10 @@ int main()
     config.fountain_width = 0.5;
     config.fountain_sweep_steps = 6;
 
+    config.particle_ttl = std::chrono::seconds(1);
+    config.particle_gravity = 9.81;
+    config.particle_bounce_friction = 0.75;
+
     config.cam_sensitivity = 0.0025;
     config.cam_speed = 2;
     config.cam_fov = 100;
@@ -27,6 +31,11 @@ int main()
     else
     {
         std::clog << "[main] failed to start application" << std::endl;
+        GLenum err;
+        while ((err = glGetError()) != GL_NO_ERROR)
+        {
+            std::cerr << "[GL ERROR] code: " << (err) << std::endl;
+        }
     }
 
 

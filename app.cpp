@@ -105,33 +105,41 @@ void particle::application::render_frame()
 
     // enable depth test
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_TEXTURE_2D);
 
     this->object_shader.use();
     this->object_shader.uniform_matrix_4x4f("mvp", 1, false, glm::value_ptr(projection * view) );
-    //glBindVertexArray(this->fountain.vao);
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
     this->fountain.draw();
     this->plane.draw();
     this->bricks.draw();
+    this->particles.draw(view, projection);
+
     return;
 }
 
 bool particle::application::setup_structures()
 {
-    // testing code
+    std::clog << "[GL ERROR / application / setup_structures] before generating, code: " << glGetError() << std::endl;
     if(!this->bricks.read_from_file("assets/models/bricks.txt"))
     {
         std::cerr << "[application / setup_structures] Unable to generate debug brick block" << std::endl;
         return false;
-    }
+    }std::clog << "[GL ERROR / application / setup_structures] after debug brick, code: " << glGetError() << std::endl;
     if(!this->plane.read_from_file("assets/models/floor.txt"))
     {
         std::cerr << "[application / setup_structures] Unable to generate floor" << std::endl;
         return false;
-    }
-    if(!this->setup_fountain("assets/textures/metal2.jpg"))
+    }std::clog << "[GL ERROR / application / setup_structures] after floor, code: " << glGetError() << std::endl;
+    if(!this->fountain_setup("assets/textures/metal2.jpg"))
     {
         std::cerr << "[application / setup_structures] Unable to generate fountain" << std::endl;
+        return false;
+    }std::clog << "[GL ERROR / application / setup_structures] after fountain, code: " << glGetError() << std::endl;
+    if(!this->particles.init("assets/textures/particle2.png"))
+    {
+        std::cerr << "[application / setup_structures] unable to set up particles" << std::endl;
         return false;
     }
     return true;
@@ -166,12 +174,13 @@ void particle::application::run()
 
 bool particle::application::init(configuration& config)
 {
+    this->config = &config; // set configuration
+    application::app = this;
 #if 0 // Disable this code to not set the DISPLAY environment variable for WSL2
     setenv("DISPLAY", "LAPTOP-EH8FTC7B.mshome.net:0", 1);
 #endif
     //omp_set_num_threads(omp_get_max_threads()); // OpenMP initialisation
     glfwSetErrorCallback(__error_callback);      // GLFW Error handling
-    this->config = &config;                     // get configuration
 
     glfwInit();
     glfwWindowHint(GLFW_RED_BITS, 24);              // set red bits
@@ -208,7 +217,7 @@ bool particle::application::init(configuration& config)
     glfwSetCursorPos(window, vid_mode->width / 2 + vid_mode->width / 4, vid_mode->height / 2 + vid_mode->height / 4);      // set mousepos to the center
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);   // disable cursor
 
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
     glewInit();
 
     // load shaders

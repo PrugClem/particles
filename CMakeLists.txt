@@ -11,7 +11,7 @@ project ("particles")
 
 # Add source to this project's executable.
 add_executable (particles 
-    "main.cpp" "app.cpp" "app.hpp" "particles.hpp" "static_obj.cpp" "fountain.cpp" # c++ source files for the program
+    "main.cpp" "app.cpp" "app.hpp" "particles.hpp" "static_obj.cpp" "fountain.cpp" "particle.cpp" "particle_pool.cpp" # c++ source files for the program
     "GLshader/src/shader_load_src.cpp" "GLshader/src/shader_other_src.cpp" "GLshader/src/shader_uniform_src.cpp" # R-Michi's Shader loader library
 )
 
@@ -41,10 +41,10 @@ endif()
 if(WIN32)
     # OpenGL stuff, thanks to windows not convenient
     target_link_libraries(particles
-    "-l${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw-3.3.3/lib/glfw3"
-    "-l${CMAKE_CURRENT_SOURCE_DIR}/lib/glew-2.1.0/lib/Release/x64/glew32s"
-    "-l${CMAKE_CURRENT_SOURCE_DIR}/lib/glm/glm/lib/glm_static"
-    "-lopengl32")
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/glfw-3.3.3/lib/glfw3.lib"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/glew-2.1.0/lib/Release/x64/glew32s.lib"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/glm/glm/lib/glm_static.lib"
+    "opengl32")
 else()
     # OpenGL stuff using CMake exporting
     find_package(glfw3 3.3 REQUIRED)

@@ -13,11 +13,15 @@ namespace particle
     public:
         struct configuration // configuration structure, will be call-by-reference
         {
-            std::uint32_t max_particles;
+            std::size_t max_particles;
 
-            size_t fountain_sweep_steps;
+            std::size_t fountain_sweep_steps;
             double fountain_height;
             double fountain_width;
+
+            std::chrono::system_clock::duration particle_ttl;
+            float particle_gravity;
+            float particle_bounce_friction;
 
             float cam_sensitivity;
             float cam_speed;
@@ -57,6 +61,8 @@ namespace particle
         camera cam;
         gl::Shader object_shader;
         static_obj fountain, plane, bricks;
+        particle_pool particles;
+        inline static application *app;
 
         std::chrono::system_clock::time_point t_start, t_cur_frame, t_last_frame;
         std::chrono::system_clock::duration dt_frame;
@@ -67,11 +73,15 @@ namespace particle
         void render_frame();
         void update_particles();
         bool setup_structures();
-        bool setup_fountain(const char* texture_filename);
+        bool fountain_setup(const char* texture_filename);
+        void fountain_generate_normals_last_ring();
     public:
         application() = default;
         ~application();
         bool init(configuration &config);
         void run();
+
+        friend class particle;
+        friend class particle_pool;
     };
 } // namespace particle

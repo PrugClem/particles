@@ -32,16 +32,67 @@
 
 
 namespace particle
-{    struct vertex_t
+{
+    struct vertex_t
     {
         glm::vec2 tex_coord;    // texture coordinates
         glm::vec4 color;	    // color information
         glm::vec3 pos;	        // spacial coordinates
+        glm::vec3 normal;       // normal vector for the vertex
+    };
+    struct p_vertex_t
+    {
+        glm::vec3 pos;
+        glm::vec4 color;
+        float width;
     };
 
     class particle
     {
+    public:
     private:
-        vertex_t vertices[4];
+        p_vertex_t _vertex;
+        glm::vec3 vel;
+        bool alive;
+        std::chrono::system_clock::time_point ttd;
+        
+    public:
+        static gl::Shader particle_shader;
+
+        particle();
+        particle(const glm::vec3& start_pos, const glm::vec3& start_vel, const glm::vec4& color, float width);
+        virtual ~particle();
+
+        void spawn(const glm::vec3& start_pos, const glm::vec3& start_vel, const glm::vec4& color, float width);
+        void update_physics(std::chrono::system_clock::time_point now, float dt);
+
+        const p_vertex_t& vertex();
+    };
+
+    class particle_pool
+    {
+    private:
+        GLuint shader_prog;
+        std::vector<particle> particles;
+        GLuint vbo{0}; // vertex buffer object, stores the vertices
+        GLuint vao{0}; // vertex array object
+        GLuint tex{0}; // object texture, stores the texture to map onto the particles
+
+        constexpr static const char* VERTEX_PATH =   "assets/shaders/particle.vert";
+        constexpr static const char* GEOMETRY_PATH = "assets/shaders/particle.geom";
+        constexpr static const char* FRAGMENT_PATH = "assets/shaders/particle.frag";
+    
+        bool load_shaders();
+
+    public:
+        virtual ~particle_pool(void);
+
+        bool init(const std::string &texture_filename);
+
+        bool load_texture(const char *texture_filename);
+
+        void draw(glm::mat4 view, glm::mat4 projection);
+
+        //const std::vector<particle>& get_particles(void);
     };
 } // namespace particle

@@ -40,3 +40,4 @@ lib/glm*
 build
 out
 _particles_jed.cpp
+CMakeSettings.json
