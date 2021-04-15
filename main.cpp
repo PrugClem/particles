@@ -22,6 +22,7 @@ int main()
     config.cam_speed = 2;
     config.cam_fov = 100;
 
+    omp_set_num_threads(omp_get_max_threads());
 
     if(app.init(config))
     {

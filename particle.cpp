@@ -11,8 +11,8 @@ void particle::particle::spawn(const glm::vec3& start_pos, const glm::vec3& star
     this->alive = true;
     this->_vertex.pos = start_pos;
     this->vel = start_vel;
-    this->ttd = std::chrono::system_clock::now() + application::app->config->particle_ttl + 
-        std::chrono::milliseconds( uint64_t(abs( random::normal(0, (application::app->config->particle_ttl / 1ms) ) )) );
+    this->ttd = std::chrono::system_clock::now() + application::config().particle_ttl + 
+        std::chrono::milliseconds( uint64_t(abs( random::normal(0, (application::config().particle_ttl / 1ms) ) )) );
     this->_vertex.color = color;
     this->_vertex.width = width;
 }
@@ -31,7 +31,7 @@ void particle::particle::update_physics(std::chrono::system_clock::time_point no
 #if 1
             this->alive = false;
             this->_vertex.width = 0.05 + abs(random::normal(0, 0.05));
-            glm::vec3 start(0, application::app->config->fountain_height + this->_vertex.width, 0);
+            glm::vec3 start(0, application::config().fountain_height + this->_vertex.width, 0);
             glm::vec3 vel( random::normal(0, 2), abs(random::normal(0, 4)), random::normal(0, 2) );
             glm::vec4 color( random::uniform(0,1), random::uniform(0,1), random::uniform(0,1), 1 );
             this->spawn(start, vel, color, this->_vertex.width);
@@ -43,21 +43,21 @@ void particle::particle::update_physics(std::chrono::system_clock::time_point no
         }
         // apply velocity
         this->_vertex.pos += this->vel * dt;
-        this->vel.y -= (application::app->config->particle_gravity * dt);
+        this->vel.y -= (application::config().particle_gravity * dt);
 
         if(this->vel.y < 0) // only run collision detection if particle is moving downward
         {
             // collision detection, fountain, using pythagoras
-            if( (this->_vertex.pos.x*this->_vertex.pos.x + this->_vertex.pos.z*this->_vertex.pos.z < application::app->config->fountain_width*application::app->config->fountain_width) &&
-                (this->_vertex.pos.y < (application::app->config->fountain_height + this->_vertex.width/2)) )
+            if( (this->_vertex.pos.x*this->_vertex.pos.x + this->_vertex.pos.z*this->_vertex.pos.z < application::config().fountain_width*application::config().fountain_width) &&
+                (this->_vertex.pos.y < (application::config().fountain_height + this->_vertex.width/2)) )
             {
                 // velocity handling
-                this->vel.y = -this->vel.y * application::app->config->particle_bounce_friction; 
+                this->vel.y = -this->vel.y * application::config().particle_bounce_friction; 
                 //this->vel.y = -this->vel.y;
                 //this->vel *= application::app->config->particle_bounce_friction;
                 // position handling
-                this->_vertex.pos.y = this->_vertex.width/2 + application::app->config->fountain_height +
-                    (this->_vertex.pos.y - (this->_vertex.width / 2 + application::app->config->fountain_height)) * application::app->config->particle_bounce_friction;
+                this->_vertex.pos.y = this->_vertex.width/2 + application::config().fountain_height +
+                    (this->_vertex.pos.y - (this->_vertex.width / 2 + application::config().fountain_height)) * application::config().particle_bounce_friction;
             }
             // collision detection, floor
             else if(this->_vertex.pos.y < this->_vertex.width / 2) // throu floor
@@ -65,10 +65,10 @@ void particle::particle::update_physics(std::chrono::system_clock::time_point no
                 // velocity handling
                 //this->vel.y = -this->vel.y * application::app->config->particle_bounce_friction; 
                 this->vel.y = -this->vel.y;
-                this->vel *= application::app->config->particle_bounce_friction;
+                this->vel *= application::config().particle_bounce_friction;
                 // position handling
                 this->_vertex.pos.y = this->_vertex.width/2 + 
-                    (this->_vertex.width/2 - this->_vertex.pos.y) * application::app->config->particle_bounce_friction;
+                    (this->_vertex.width/2 - this->_vertex.pos.y) * application::config().particle_bounce_friction;
             }
         }
     }
@@ -76,6 +76,6 @@ void particle::particle::update_physics(std::chrono::system_clock::time_point no
 
 bool particle::particle::is_further_from_cam(const particle& other)
 {
-    return (glm::distance(this->_vertex.pos, application::app->cam.pos ) >
-            glm::distance(other._vertex.pos, application::app->cam.pos) );
+    return (glm::distance(this->_vertex.pos, application::camera().pos ) >
+            glm::distance(other._vertex.pos, application::camera().pos) );
 }

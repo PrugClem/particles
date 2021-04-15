@@ -3,6 +3,9 @@
 
 particle::particle_pool::~particle_pool(void)
 {
+    if(this->engine_thread.joinable())
+        this->engine_thread.join();
+    
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
     glUnmapBuffer(GL_ARRAY_BUFFER);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -40,7 +43,7 @@ bool particle::particle_pool::init(const std::string &texture_filename)
         return false;
     }
 
-    this->particles.resize(application::app->config->max_particles);
+    this->particles.resize(application::config().max_particles);
 
     this->load_texture(texture_filename.c_str());
 
@@ -74,8 +77,24 @@ bool particle::particle_pool::init(const std::string &texture_filename)
 
     glBindVertexArray(0);
     
+    this->engine_thread = std::thread(engine_func, this);
 
     return true;
+}
+
+void particle::particle_pool::engine_func(particle_pool* tar)
+{
+    std::chrono::system_clock::time_point t_cur_frame{ std::chrono::system_clock::now() }, t_last_frame{ std::chrono::system_clock::now() };
+    std::chrono::system_clock::duration dt;
+
+    while (tar->running)
+    {
+        t_cur_frame = std::chrono::system_clock::now();
+        dt = t_cur_frame - t_last_frame;
+        t_last_frame = t_cur_frame;
+
+        tar->run_engine(t_cur_frame, dt);
+    }
 }
 
 bool particle::particle_pool::load_shaders()
@@ -210,7 +229,8 @@ void particle::particle_pool::run_engine(std::chrono::system_clock::time_point n
     using namespace std::chrono_literals;
     for (size_t i = 0; i < this->particles.size(); i++)
         particles.at(i).update_physics(now, (dt / 1us)*1e-6f );
-    if (application::app->config->particle_correct_alpha) { std::sort(particles.begin(), particles.end(), [&](particle lhs, particle rhs) {return (lhs.is_further_from_cam(rhs));}); }
+    if (application::config().particle_correct_alpha) { std::sort(particles.begin(), particles.end(), [&](particle lhs, particle rhs) {return (lhs.is_further_from_cam(rhs));}); }
+    #pragma omp parallel for
     for (size_t i = 0; i < this->particles.size(); i++)
         memcpy(this->data + i, &this->particles[i].vertex(), sizeof(p_vertex_t));
 }

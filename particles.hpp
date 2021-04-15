@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <fstream>
+#include <thread>
 #include <vector>
 #include <thread>
 #include <chrono>
@@ -84,11 +85,18 @@ namespace particle
         GLuint vao{0}; // vertex array object
         GLuint tex{0}; // object texture, stores the texture to map onto the particles
 
+        std::thread engine_thread;
+        std::atomic_bool running{ true };
+
         constexpr static const char* VERTEX_PATH =   "assets/shaders/particle.vert";
         constexpr static const char* GEOMETRY_PATH = "assets/shaders/particle.geom";
         constexpr static const char* FRAGMENT_PATH = "assets/shaders/particle.frag";
     
         bool load_shaders();
+
+        static void engine_func(particle_pool *tar);
+
+        void run_engine(std::chrono::system_clock::time_point now, std::chrono::system_clock::duration dt);
 
     public:
         virtual ~particle_pool(void);
@@ -98,7 +106,9 @@ namespace particle
         bool load_texture(const char *texture_filename);
 
         void draw(glm::mat4 view, glm::mat4 projection);
-        void run_engine(std::chrono::system_clock::time_point now, std::chrono::system_clock::duration dt);
+
+        inline void stop() { this->running = false; }
+        inline void join() { this->engine_thread.join(); }
 
         //const std::vector<particle>& get_particles(void);
     };

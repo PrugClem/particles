@@ -13,6 +13,7 @@ void __key_callback(GLFWwindow *window, int key, int scancode, int action, int m
     {
         std::clog << "[GLFW / key input] Pressed ESC Key  " << std::endl;
         glfwSetWindowShouldClose(window, 1);
+        particle::application::stop();
     }
     if ((key == GLFW_KEY_F11) && (action == GLFW_PRESS))
     {
@@ -107,8 +108,8 @@ void particle::application::render_frame()
 
     // set camera
     glfwGetWindowSize(this->window, &width, &height);
-    mouse_action(this->window, width, height, cam.yaw, cam.pitch, config->cam_sensitivity);
-    move_action(this->window, cam.pos.x, cam.pos.y, cam.pos.z, cam.yaw, config->cam_speed);
+    mouse_action(this->window, width, height, cam.yaw, cam.pitch, config().cam_sensitivity);
+    move_action(this->window, cam.pos.x, cam.pos.y, cam.pos.z, cam.yaw, config().cam_speed);
 
     // set up viewport
     glViewport(0, 0, width, height);
@@ -124,7 +125,7 @@ void particle::application::render_frame()
                                   this->cam.pos.y + sin(this->cam.pitch),
                                   this->cam.pos.z + cos(this->cam.yaw) * cos(this->cam.pitch)),
                      glm::dvec3(0.0, 1.0, 0.0));
-    glm::mat4 projection = glm::perspective(glm::radians(this->config->cam_fov), ((float)width / (float)height), 0.001f, 500.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(config().cam_fov), ((float)width / (float)height), 0.001f, 500.0f);
 
     // enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -183,7 +184,7 @@ void particle::application::run()
         t_last_frame = t_cur_frame;
 
         // render current frame, draw frame to display and process input events
-        this->particles.run_engine(this->t_cur_frame, this->dt_frame);
+        //this->particles.run_engine(this, this->t_cur_frame, this->dt_frame);
         this->render_frame();
         glfwSwapBuffers(this->window);
         glfwPollEvents();
@@ -200,8 +201,8 @@ void particle::application::run()
 
 bool particle::application::init(configuration& config)
 {
-    this->config = &config; // set configuration
-    application::app = this;
+    this->_config = &config; // set configuration
+    application::_app = this;
 #if 0 // Disable this code to not set the DISPLAY environment variable for WSL2
     setenv("DISPLAY", "LAPTOP-EH8FTC7B.mshome.net:0", 1);
 #endif

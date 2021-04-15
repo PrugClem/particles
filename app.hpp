@@ -58,12 +58,12 @@ namespace particle
         };
     private:
         GLFWwindow* window;
-        configuration *config;
+        configuration *_config;
         camera cam;
         gl::Shader object_shader;
         static_obj fountain, plane, bricks;
         particle_pool particles;
-        inline static application *app;
+        inline static application *_app;
 
         std::chrono::system_clock::time_point t_start, t_cur_frame, t_last_frame;
         std::chrono::system_clock::duration dt_frame;
@@ -78,10 +78,12 @@ namespace particle
     public:
         application() = default;
         ~application();
+
+        inline static const application& app() { return *_app; }
+        inline static const camera& camera() { return (_app->cam); }
+        inline static const configuration& config() { return *(_app->_config); }
         bool init(configuration &config);
         void run();
-
-        friend class particle;
-        friend class particle_pool;
+        inline static void stop() { _app->particles.stop(); }
     };
 } // namespace particle
