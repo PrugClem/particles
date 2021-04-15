@@ -1,5 +1,7 @@
 #include "app.hpp"
 
+bool should_move{ true };
+
 void __error_callback(int code, const char* msg)
 {
     std::cerr << "[ERROR / GLFW] (code " << code << "): " << msg << std::endl;
@@ -12,10 +14,31 @@ void __key_callback(GLFWwindow *window, int key, int scancode, int action, int m
         std::clog << "[GLFW / key input] Pressed ESC Key  " << std::endl;
         glfwSetWindowShouldClose(window, 1);
     }
+    if ((key == GLFW_KEY_F11) && (action == GLFW_PRESS))
+    {
+        std::clog << "[GLFW / key input] toggled Fullscreen mode   " << std::endl;
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        int xpos, ypos, width, height;
+        glfwGetMonitorWorkarea(monitor, &xpos, &ypos, &width, &height);
+        if (glfwGetWindowMonitor(window) == nullptr) // set to fullscreen mode
+        {
+            glfwSetWindowMonitor(window, monitor, xpos, ypos, width, height, GLFW_DONT_CARE);
+        }
+        else
+        {
+            glfwSetWindowMonitor(window, NULL, xpos, ypos, width, height, GLFW_DONT_CARE);
+        }
+    }
+    if ((key == GLFW_KEY_TAB) && (action == GLFW_PRESS))
+    {
+        std::clog << "[GLFW / key input] toggled camera input " << ( (should_move = !should_move) ? "on" : "off") << std::endl;
+        glfwSetInputMode(window, GLFW_CURSOR, (should_move) ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
+    }
 }
 
 void mouse_action(GLFWwindow* window, int sx, int sy, double& rotx, double& roty, float sensetivity)
 {
+    if (!should_move) return;
     constexpr double roty_max = 89.9/180.0*M_PI;
     const double sx_half = sx / 2;
     const double sy_half = sy / 2;
@@ -123,22 +146,22 @@ void particle::application::render_frame()
 
 bool particle::application::setup_structures()
 {
-    std::clog << "[GL ERROR / application / setup_structures] before generating, code: " << glGetError() << std::endl;
+    // std::clog << "[GL ERROR / application / setup_structures] before generating, code: " << glGetError() << std::endl;
     if(!this->bricks.read_from_file("assets/models/bricks.txt"))
     {
         std::cerr << "[application / setup_structures] Unable to generate debug brick block" << std::endl;
         return false;
-    }std::clog << "[GL ERROR / application / setup_structures] after debug brick, code: " << glGetError() << std::endl;
+    } // std::clog << "[GL ERROR / application / setup_structures] after debug brick, code: " << glGetError() << std::endl;
     if(!this->plane.read_from_file("assets/models/floor.txt"))
     {
         std::cerr << "[application / setup_structures] Unable to generate floor" << std::endl;
         return false;
-    }std::clog << "[GL ERROR / application / setup_structures] after floor, code: " << glGetError() << std::endl;
+    } // std::clog << "[GL ERROR / application / setup_structures] after floor, code: " << glGetError() << std::endl;
     if(!this->fountain_setup("assets/textures/metal2.jpg"))
     {
         std::cerr << "[application / setup_structures] Unable to generate fountain" << std::endl;
         return false;
-    }std::clog << "[GL ERROR / application / setup_structures] after fountain, code: " << glGetError() << std::endl;
+    } // std::clog << "[GL ERROR / application / setup_structures] after fountain, code: " << glGetError() << std::endl;
     if(!this->particles.init("assets/textures/particle.png"))
     {
         std::cerr << "[application / setup_structures] unable to set up particles" << std::endl;

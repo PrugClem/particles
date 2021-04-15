@@ -32,7 +32,7 @@ void particle::particle::update_physics(std::chrono::system_clock::time_point no
             this->alive = false;
             this->_vertex.width = 0.05 + abs(random::normal(0, 0.05));
             glm::vec3 start(0, application::app->config->fountain_height + this->_vertex.width, 0);
-            glm::vec3 vel( random::normal(0, 1), abs(random::normal(0, 3)), random::normal(0, 1) );
+            glm::vec3 vel( random::normal(0, 2), abs(random::normal(0, 4)), random::normal(0, 2) );
             glm::vec4 color( random::uniform(0,1), random::uniform(0,1), random::uniform(0,1), 1 );
             this->spawn(start, vel, color, this->_vertex.width);
 #else
@@ -53,6 +53,8 @@ void particle::particle::update_physics(std::chrono::system_clock::time_point no
             {
                 // velocity handling
                 this->vel.y = -this->vel.y * application::app->config->particle_bounce_friction; 
+                //this->vel.y = -this->vel.y;
+                //this->vel *= application::app->config->particle_bounce_friction;
                 // position handling
                 this->_vertex.pos.y = this->_vertex.width/2 + application::app->config->fountain_height +
                     (this->_vertex.pos.y - (this->_vertex.width / 2 + application::app->config->fountain_height)) * application::app->config->particle_bounce_friction;
@@ -61,7 +63,9 @@ void particle::particle::update_physics(std::chrono::system_clock::time_point no
             else if(this->_vertex.pos.y < this->_vertex.width / 2) // throu floor
             {
                 // velocity handling
-                this->vel.y = -this->vel.y * application::app->config->particle_bounce_friction; 
+                //this->vel.y = -this->vel.y * application::app->config->particle_bounce_friction; 
+                this->vel.y = -this->vel.y;
+                this->vel *= application::app->config->particle_bounce_friction;
                 // position handling
                 this->_vertex.pos.y = this->_vertex.width/2 + 
                     (this->_vertex.width/2 - this->_vertex.pos.y) * application::app->config->particle_bounce_friction;

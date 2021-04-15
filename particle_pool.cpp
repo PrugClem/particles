@@ -190,11 +190,8 @@ void particle::particle_pool::draw(glm::mat4 view, glm::mat4 projection)
 {
     glDepthMask(GL_FALSE);
     glUseProgram(this->shader_prog);
-    //GLint test_loc = glGetUniformLocation(this->shader_prog, "test");
     GLint view_loc = glGetUniformLocation(this->shader_prog, "view");
     GLint projection_loc = glGetUniformLocation(this->shader_prog, "projection");
-
-    //std::clog << "[DEBUG] shader program: " << this->shader_prog << ", view:" << view_loc << ", projection: " << projection_loc << ", OpenGL Error: " << glGetError() << std::endl;
 
     glUniformMatrix4fv(view_loc, 1, false, glm::value_ptr(view));
     glUniformMatrix4fv(projection_loc, 1, false, glm::value_ptr(projection));
@@ -213,7 +210,7 @@ void particle::particle_pool::run_engine(std::chrono::system_clock::time_point n
     using namespace std::chrono_literals;
     for (size_t i = 0; i < this->particles.size(); i++)
         particles.at(i).update_physics(now, (dt / 1us)*1e-6f );
-    std::sort(particles.begin(), particles.end(), [&](particle lhs, particle rhs) {return (lhs.is_further_from_cam(rhs));});
+    if (application::app->config->particle_correct_alpha) { std::sort(particles.begin(), particles.end(), [&](particle lhs, particle rhs) {return (lhs.is_further_from_cam(rhs));}); }
     for (size_t i = 0; i < this->particles.size(); i++)
         memcpy(this->data + i, &this->particles[i].vertex(), sizeof(p_vertex_t));
 }

@@ -7,7 +7,8 @@ int main()
     particle::application app;
     particle::application::configuration config;
 
-    config.max_particles = 1000;
+    config.max_particles = 10000;
+    config.particle_correct_alpha = false;
 
     config.fountain_height = 1;
     config.fountain_width = 0.5;

@@ -14,6 +14,7 @@ namespace particle
         struct configuration // configuration structure, will be call-by-reference
         {
             std::size_t max_particles;
+            bool particle_correct_alpha;
 
             std::size_t fountain_sweep_steps;
             double fountain_height;
