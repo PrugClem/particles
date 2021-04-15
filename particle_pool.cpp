@@ -42,11 +42,6 @@ bool particle::particle_pool::init(const std::string &texture_filename)
 
     this->particles.resize(application::app->config->max_particles);
 
-    // testing code
-    this->particles.resize(2);
-    this->particles.at(0).spawn(glm::vec3(-0.5, -0.5, 0.0), glm::vec3(0, 0, 0), glm::vec4(0, 1, 0, 1), 1);
-    this->particles.at(1).spawn(glm::vec3(0.5f, 0.5f, 0.0), glm::vec3(0, 0, 0), glm::vec4(0, 0, 1, 1), 1);
-
     this->load_texture(texture_filename.c_str());
 
     glGenVertexArrays(1, &this->vao);
@@ -63,9 +58,8 @@ bool particle::particle_pool::init(const std::string &texture_filename)
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(p_vertex_t), (const void*)(sizeof(glm::vec3) + sizeof(glm::vec4)) );
 
-    #if 1
-    p_vertex_t* data = (p_vertex_t*)glMapBufferRange(GL_ARRAY_BUFFER, 0, GLsizeiptr(this->particles.size()*sizeof( p_vertex_t )), GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
-    if (data == nullptr)
+    this->data = (p_vertex_t*)glMapBufferRange(GL_ARRAY_BUFFER, 0, GLsizeiptr(this->particles.size()*sizeof( p_vertex_t )), GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+    if (this->data == nullptr)
     {
         std::cerr << "[particle_pool / init] failed to map buffer range" << std::endl;
         //std::cerr << "[particle_pool / init] buffer length: " << GLsizeiptr(this->particles.size() * sizeof(p_vertex_t)) << std::endl;
@@ -73,10 +67,9 @@ bool particle::particle_pool::init(const std::string &texture_filename)
     }
 
     for(size_t i = 0; i < this->particles.size(); i++)
-        memcpy(data + i, &this->particles[i].vertex(), sizeof(p_vertex_t));
+        memcpy(this->data + i, &this->particles[i].vertex(), sizeof(p_vertex_t));
 
     glFlushMappedBufferRange(GL_ARRAY_BUFFER, 0, GLsizeiptr(this->particles.size()*sizeof( p_vertex_t )));
-    #endif
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
@@ -195,6 +188,7 @@ bool particle::particle_pool::load_shaders()
 
 void particle::particle_pool::draw(glm::mat4 view, glm::mat4 projection)
 {
+    glDepthMask(GL_FALSE);
     glUseProgram(this->shader_prog);
     //GLint test_loc = glGetUniformLocation(this->shader_prog, "test");
     GLint view_loc = glGetUniformLocation(this->shader_prog, "view");
@@ -211,7 +205,15 @@ void particle::particle_pool::draw(glm::mat4 view, glm::mat4 projection)
 
     glBindVertexArray(0);
     glUseProgram(0);
+    glDepthMask(GL_TRUE);
+}
 
-    //std::clog << "[DEBUG / particle_pool / draw] this->shader_prog: " << this->shader_prog << std::endl;
-    //std::clog << "[DEBUG / particle_pool / draw] #particles: " << this->particles.size() << " OpenGL Error: " << glGetError() << ", vao: " << this->vao << std::endl;
+void particle::particle_pool::run_engine(std::chrono::system_clock::time_point now, std::chrono::system_clock::duration dt)
+{
+    using namespace std::chrono_literals;
+    for (size_t i = 0; i < this->particles.size(); i++)
+        particles.at(i).update_physics(now, (dt / 1us)*1e-6f );
+    std::sort(particles.begin(), particles.end(), [&](particle lhs, particle rhs) {return (lhs.is_further_from_cam(rhs));});
+    for (size_t i = 0; i < this->particles.size(); i++)
+        memcpy(this->data + i, &this->particles[i].vertex(), sizeof(p_vertex_t));
 }

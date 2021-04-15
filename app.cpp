@@ -41,7 +41,7 @@ void mouse_action(GLFWwindow* window, int sx, int sy, double& rotx, double& roty
 
     glfwSetCursorPos(window, sx_half, sy_half);
 }
-void move_action(GLFWwindow* window, double& posx, double& posy, double& posz, double rotx, float speed)
+void move_action(GLFWwindow* window, float& posx, float& posy, float& posz, double rotx, float speed)
 {
     static double old_time = glfwGetTime();
     double deltatime = glfwGetTime() - old_time;
@@ -85,7 +85,7 @@ void particle::application::render_frame()
     // set camera
     glfwGetWindowSize(this->window, &width, &height);
     mouse_action(this->window, width, height, cam.yaw, cam.pitch, config->cam_sensitivity);
-    move_action(this->window, cam.x, cam.y, cam.z, cam.yaw, config->cam_speed);
+    move_action(this->window, cam.pos.x, cam.pos.y, cam.pos.z, cam.yaw, config->cam_speed);
 
     // set up viewport
     glViewport(0, 0, width, height);
@@ -96,17 +96,19 @@ void particle::application::render_frame()
 
 
     // camera matrices
-    glm::mat4 view = glm::lookAt(glm::dvec3(this->cam.x, this->cam.y, this->cam.z),
-                     glm::dvec3(this->cam.x + sin(this->cam.yaw) * cos(this->cam.pitch),
-                                  this->cam.y + sin(this->cam.pitch),
-                                  this->cam.z + cos(this->cam.yaw) * cos(this->cam.pitch)),
+    glm::mat4 view = glm::lookAt(glm::dvec3(this->cam.pos.x, this->cam.pos.y, this->cam.pos.z),
+                     glm::dvec3(this->cam.pos.x + sin(this->cam.yaw) * cos(this->cam.pitch),
+                                  this->cam.pos.y + sin(this->cam.pitch),
+                                  this->cam.pos.z + cos(this->cam.yaw) * cos(this->cam.pitch)),
                      glm::dvec3(0.0, 1.0, 0.0));
     glm::mat4 projection = glm::perspective(glm::radians(this->config->cam_fov), ((float)width / (float)height), 0.001f, 500.0f);
 
     // enable depth test
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+    glBlendEquation(GL_FUNC_ADD);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_TEXTURE_2D);
 
     this->object_shader.use();
@@ -137,7 +139,7 @@ bool particle::application::setup_structures()
         std::cerr << "[application / setup_structures] Unable to generate fountain" << std::endl;
         return false;
     }std::clog << "[GL ERROR / application / setup_structures] after fountain, code: " << glGetError() << std::endl;
-    if(!this->particles.init("assets/textures/particle2.png"))
+    if(!this->particles.init("assets/textures/particle.png"))
     {
         std::cerr << "[application / setup_structures] unable to set up particles" << std::endl;
         return false;
@@ -157,7 +159,8 @@ void particle::application::run()
         this->dt_frame = t_cur_frame - t_last_frame;
         t_last_frame = t_cur_frame;
 
-        // render current frame, dra frame to display and process input events
+        // render current frame, draw frame to display and process input events
+        this->particles.run_engine(this->t_cur_frame, this->dt_frame);
         this->render_frame();
         glfwSwapBuffers(this->window);
         glfwPollEvents();
@@ -200,14 +203,14 @@ bool particle::application::init(configuration& config)
     const GLFWvidmode* vid_mode = glfwGetVideoMode(monitor);
 
     // create window
-    window = glfwCreateWindow(vid_mode->width / 2, vid_mode->height / 2, "", NULL, NULL);
+    window = glfwCreateWindow(vid_mode->width, vid_mode->height, "", NULL, NULL);
     if (window == NULL)
     {
         glfwTerminate();
         std::cerr << "[application / init] failed to open Window" << std::endl;
         return false;
     }
-    glfwSetWindowPos(window, vid_mode->width / 4, vid_mode->height / 4);
+    glfwSetWindowPos(window, 0, 0);
     glfwSetWindowTitle(window, "particles");
     glfwMakeContextCurrent(window);
 
@@ -217,7 +220,7 @@ bool particle::application::init(configuration& config)
     glfwSetCursorPos(window, vid_mode->width / 2 + vid_mode->width / 4, vid_mode->height / 2 + vid_mode->height / 4);      // set mousepos to the center
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);   // disable cursor
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     glewInit();
 
     // load shaders
@@ -239,7 +242,7 @@ bool particle::application::init(configuration& config)
     }
 
     // reset camera
-    this->cam = {0.0, 0.0, 0.0, 0.0, 0.0};
+    this->cam = {glm::vec3(1.0, 2.0, 1.0), 0.0, 0.0};
 
     if(!this->setup_structures())
     {

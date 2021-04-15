@@ -13,7 +13,7 @@ project ("particles")
 add_executable (particles 
     "main.cpp" "app.cpp" "app.hpp" "particles.hpp" "static_obj.cpp" "fountain.cpp" "particle.cpp" "particle_pool.cpp" # c++ source files for the program
     "GLshader/src/shader_load_src.cpp" "GLshader/src/shader_other_src.cpp" "GLshader/src/shader_uniform_src.cpp" # R-Michi's Shader loader library
-)
+  "random.hpp")
 
 # copy shaders (copy from $src/shaders/* to $bin/shaders/*)
 if(WIN32)

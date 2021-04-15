@@ -12,5 +12,8 @@ out vec4 res_color;
 
 void main()
 {
+    vec4 tex_color = texture(tex, fs_in.frag_tex_coord);
+    if(tex_color.a <= 0.0f)
+        discard;
     res_color = texture(tex, fs_in.frag_tex_coord) * fs_in.frag_color;
 }

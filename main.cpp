@@ -7,13 +7,13 @@ int main()
     particle::application app;
     particle::application::configuration config;
 
-    config.max_particles = 100;
+    config.max_particles = 1000;
 
     config.fountain_height = 1;
     config.fountain_width = 0.5;
     config.fountain_sweep_steps = 6;
 
-    config.particle_ttl = std::chrono::seconds(1);
+    config.particle_ttl = std::chrono::seconds(5);
     config.particle_gravity = 9.81;
     config.particle_bounce_friction = 0.75;
 

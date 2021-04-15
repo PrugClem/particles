@@ -23,6 +23,7 @@
 #include <cmath>
 
 #include "GLshader/Shader.h"
+#include "random.hpp"
 
 #ifdef _WIN32
 #include "lib/stb/stb_image.h"
@@ -67,12 +68,17 @@ namespace particle
         void update_physics(std::chrono::system_clock::time_point now, float dt);
 
         const p_vertex_t& vertex();
+
+        bool is_further_from_cam(const particle& other);
+
+        friend class particle_pool;
     };
 
     class particle_pool
     {
     private:
         GLuint shader_prog;
+        p_vertex_t* data;
         std::vector<particle> particles;
         GLuint vbo{0}; // vertex buffer object, stores the vertices
         GLuint vao{0}; // vertex array object
@@ -92,6 +98,7 @@ namespace particle
         bool load_texture(const char *texture_filename);
 
         void draw(glm::mat4 view, glm::mat4 projection);
+        void run_engine(std::chrono::system_clock::time_point now, std::chrono::system_clock::duration dt);
 
         //const std::vector<particle>& get_particles(void);
     };

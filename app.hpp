@@ -29,7 +29,7 @@ namespace particle
         };
         struct camera // struct to store camera stuff
         {
-            double x, y, z;
+            glm::vec3 pos;
             double yaw, pitch;
         };
         struct static_obj // "struct" to store a static obj, i.e the fountain
@@ -71,7 +71,6 @@ namespace particle
 
         // private functions to make the code more readable
         void render_frame();
-        void update_particles();
         bool setup_structures();
         bool fountain_setup(const char* texture_filename);
         void fountain_generate_normals_last_ring();
